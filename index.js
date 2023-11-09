@@ -27,20 +27,20 @@ let url = mongoose.model('Url', UrlSchema)
 
 let responseObject = {}
 
-app.get('/api/test', (req, res) => {
+app.post('/api/shorturl', (req, res) => {
+
   const getMax = url.aggregate([
     { $group: { _id: null, maxShort: { $max: "$short" } } }
   ])
   getMax.exec()
   .then(function(maximum) {
-    console.log(maximum[0].maxShort)
+    let nextNum = 0    
+    nextNum = (maximum[0].maxShort + 1)
+    console.log(nextNum)
+    url.create({short: nextNum, original: req.body.url})          
   })
-})
 
-app.post('/api/shorturl', (req, res) => {
-  console.log(req.body.url)
-  res.json(req.body)
-  url.create({short: 11, original: req.body.url})
+//  res.json(nextNum, req.body)
 })
 
 app.get('/api/shorturl/:input', (req, res) => {
@@ -48,8 +48,7 @@ app.get('/api/shorturl/:input', (req, res) => {
   let result = url.findOne({short: inputNum})
   result.exec()
   .then (function(shortRec) {
-    res.json(shortRec)
-    console.log(shortRec)
+    res.redirect('https://' + shortRec.original)   
   })
 })
 
