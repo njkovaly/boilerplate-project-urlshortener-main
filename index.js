@@ -28,6 +28,13 @@ let url = mongoose.model('Url', UrlSchema)
 let responseObject = {}
 
 app.post('/api/shorturl', (req, res) => {
+  let inputUrl = req.body.url;
+  let urlRegex = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi)
+
+  if(!inputUrl.match(urlRegex)) {
+    res.json({error: 'Invalid URL'})
+    return
+  }
 
   const getMax = url.aggregate([
     { $group: { _id: null, maxShort: { $max: "$short" } } }
@@ -37,10 +44,9 @@ app.post('/api/shorturl', (req, res) => {
     let nextNum = 0    
     nextNum = (maximum[0].maxShort + 1)
     console.log(nextNum)
-    url.create({short: nextNum, original: req.body.url})          
+    url.create({short: nextNum, original: req.body.url})
+    res.json({original_url: req.body.url, short_url: nextNum})              
   })
-
-//  res.json(nextNum, req.body)
 })
 
 app.get('/api/shorturl/:input', (req, res) => {
