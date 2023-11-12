@@ -50,11 +50,13 @@ app.post('/api/shorturl', (req, res) => {
 })
 
 app.get('/api/shorturl/:input', (req, res) => {
+  console.log('GotToGet')
   let inputNum = req.params.input
   let result = url.findOne({short: inputNum})
   result.exec()
   .then (function(shortRec) {
-    res.redirect('https://' + shortRec.original)   
+    console.log(shortRec.original)
+    res.redirect(shortRec.original)
   })
 })
 
